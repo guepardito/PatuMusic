@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="es.guepardito.patumusic.view.IndexController"
+            fx:id="rootPane"
+            prefHeight="700" prefWidth="1000.0">
+    <top>
+        <fx:script>
+
+        </fx:script>
+        <fx:include source="index-top.fxml"/>
+    </top>
+    <left>
+        <fx:include source="index-left-songs.fxml"/>
+    </left>
+    <center>
+        <fx:include source="index-center.fxml"/>
+    </center>
+</BorderPane>
