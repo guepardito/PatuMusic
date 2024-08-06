@@ -1,10 +1,12 @@
 package es.guepardito.patumusic;
 
+import es.guepardito.patumusic.music.SongsManager;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Application extends javafx.application.Application {
     @Override
@@ -17,6 +19,11 @@ public class Application extends javafx.application.Application {
     }
 
     public static void main(String[] args) {
+        initializeApp();
         launch();
+    }
+
+    private static void initializeApp() {
+        SongsManager.songs = new ArrayList<>();
     }
 }
