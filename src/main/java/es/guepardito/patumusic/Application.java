@@ -3,11 +3,9 @@ package es.guepardito.patumusic;
 import es.guepardito.patumusic.music.SongsManager;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Application extends javafx.application.Application {
     @Override

@@ -1,8 +1,6 @@
 package es.guepardito.patumusic.music;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.function.Function;
 
 public class SongsManager {
     public static ArrayList<Song> songs;
