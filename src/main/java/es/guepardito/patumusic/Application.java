@@ -3,6 +3,7 @@ package es.guepardito.patumusic;
 import es.guepardito.patumusic.music.SongsManager;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -19,11 +20,7 @@ public class Application extends javafx.application.Application {
     }
 
     public static void main(String[] args) {
-        initializeApp();
+        SongsManager.initialize();
         launch();
-    }
-
-    private static void initializeApp() {
-        SongsManager.songs = new ArrayList<>();
     }
 }

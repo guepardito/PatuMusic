@@ -3,8 +3,8 @@ module es.guepardito.patumusic {
     requires javafx.fxml;
 
     requires org.controlsfx.controls;
-    requires org.kordamp.ikonli.javafx;
     requires mp3agic;
+    requires javafx.media;
 
     opens es.guepardito.patumusic to javafx.fxml;
     exports es.guepardito.patumusic;

@@ -1,0 +1,60 @@
+/* index-view.css */
+/* Gracias a la ia por hacer un css completamente inutil :) */
+
+/* Estilo general para el BorderPane */
+.border-pane {
+    -fx-background-color: #f0f0f0; /* Fondo general */
+    -fx-padding: 20px; /* Espaciado interno */
+}
+
+/* Estilo para VBox a la izquierda */
+.vbox-left {
+    -fx-padding: 20px;
+    -fx-spacing: 10px; /* Espacio entre elementos */
+}
+
+/* Estilo para los Labels */
+.label-title {
+    -fx-font-size: 24px;
+    -fx-padding: 10px;
+}
+
+/* Estilo para ListView */
+#songListView {
+    -fx-background-color: white; /* Fondo blanco */
+    -fx-border-color: #cccccc; /* Borde gris claro */
+    -fx-border-width: 1px; /* Ancho del borde */
+}
+
+.button {
+    -fx-padding: 10px;
+}
+
+/* Estilo para el VBox en el centro */
+.vbox-center {
+    -fx-alignment: center;
+    -fx-spacing: 10px; /* Espacio entre elementos */
+}
+
+/* Estilo para ImageView */
+#coverArtImageView {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.75), 10, 0.5, 0, 0); /* Sombra */
+}
+
+/* Estilo para los HBox conteniendo Labels */
+.hbox-labels {
+    -fx-spacing: 10px; /* Espacio entre Labels */
+    -fx-alignment: center;
+}
+
+/* Estilo para ProgressBar */
+#progressSlider {
+    -fx-accent: #007bff; /* Color de progreso */
+}
+
+#volumeSlider {
+    -fx-accent: #007bff;
+    -fx-alignment: center-right;
+    -fx-spacing: 10px;
+    -fx-max-width: 150px;
+}

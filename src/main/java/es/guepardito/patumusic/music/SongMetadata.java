@@ -6,7 +6,6 @@ import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class SongMetadata {

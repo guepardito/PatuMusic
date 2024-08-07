@@ -3,31 +3,31 @@ package es.guepardito.patumusic.view;
 import es.guepardito.patumusic.music.Song;
 import es.guepardito.patumusic.music.SongMetadata;
 import es.guepardito.patumusic.music.SongsManager;
+import javafx.beans.InvalidationListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class IndexController {
+import static es.guepardito.patumusic.music.SongsManager.actualSongIndex;
 
+public class IndexController {
+    private InvalidationListener volumeListener;
+    private InvalidationListener progressListener;
     // LEFT
+    @FXML
     public ListView<String> songListView;
+    @FXML
     public Button addSong;
+    @FXML
     public Button deleteSong;
+    @FXML
     public Button selectSong;
 
     // CENTER
@@ -38,11 +38,15 @@ public class IndexController {
     @FXML
     private Label albumLabel;
     @FXML
-    private Label durationLabel;
+    public Label elapsedTimeLabel;
     @FXML
-    private ProgressBar progressBar;
+    private Label totalDurationLabel;
+    @FXML
+    private Slider progressSlider;
     @FXML
     private ImageView coverArtImageView;
+    @FXML
+    public Slider volumeSlider;
 
     @FXML
     public void initialize() {
@@ -54,8 +58,9 @@ public class IndexController {
         titleLabel.setText(metadata.getTitle());
         artistLabel.setText(metadata.getArtist());
         albumLabel.setText(metadata.getAlbum());
-        durationLabel.setText(formatDuration(metadata.getDuration()));
-        progressBar.setProgress(0);
+        totalDurationLabel.setText(formatDuration(metadata.getDuration()));
+        progressSlider.setValue(0.01);
+        volumeSlider.setValue(SongsManager.songs.get(getSelectedIndex()).getVolume() * 100);
 
         byte[] coverArt = metadata.getCoverArt();
         if (coverArt != null) {
@@ -66,17 +71,34 @@ public class IndexController {
         }
     }
 
-    public String formatDuration(long millis) {
+    public void setElapsedTime(double elapsedTime) {
+        elapsedTimeLabel.setText(formatDuration(elapsedTime));
+    }
+
+    public String formatDuration(double millisDouble) {
+        long millis = (long) (millisDouble);
         return String.format(
                 "%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
                 TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
         );
-
     }
 
-    public void playSong(ActionEvent actionEvent) {
+    public void handlePlayPauseSong(ActionEvent actionEvent) {
+        if (!SongsManager.isPlaying) {
+            SongsManager.songs.get(actualSongIndex).play();
+        } else {
+            SongsManager.songs.get(actualSongIndex).pause();
+        }
+    }
 
+    public void handlerestartSong(ActionEvent actionEvent) {
+        SongsManager.songs.get(actualSongIndex).restart();
+    }
+
+    public void handleSkipSong(ActionEvent actionEvent) {
+        prepareNextSong();
+        setNextSongListener();
     }
     // END OF CENTER
 
@@ -102,14 +124,88 @@ public class IndexController {
         SongsManager.songs.removeIf(
                 song -> song.getSongMetadata().getTitle()
                         .equals(songListView.getItems()
-                                .get(songListView.getSelectionModel().getSelectedIndex())
+                                .get(getSelectedIndex())
                         )
         );
         songListView.getItems().remove(songListView.getSelectionModel().getSelectedItem());
     }
 
-    public void handleSelectSongs(ActionEvent actionEvent)  {
-        setSongMetadata(SongsManager.songs.get(songListView.getSelectionModel().getSelectedIndex()).getSongMetadata());
+    // TODO: refactorizar para poder usar sus funciones en otras partes
+    public void handleSelectSong(ActionEvent actionEvent)  {
+        if (songListView.getSelectionModel().getSelectedItem() != null) {
+            setSongMetadata(SongsManager.songs.get(getSelectedIndex()).getSongMetadata());
+
+            SongsManager.songs.get(actualSongIndex).stop();
+            actualSongIndex = getSelectedIndex();
+            SongsManager.playActualSong(actualSongIndex);
+
+            prepareProgressSlider();
+            // TODO: hacer que cuando la cancion termine, vuelva a hacer esto
+            SongsManager.songs.get(actualSongIndex).getMediaPlayer()
+                    .setOnEndOfMedia(() -> {
+                        SongsManager.playNextSong();
+                        setSongMetadata(SongsManager.songs.get(actualSongIndex).getSongMetadata());
+                        removeSliderListeners();
+                        setSliderListeners();
+                    });
+
+            setNextSongListener();
+
+            setSliderListeners();
+        }
     }
     // END OF LEFT
+
+    private int getSelectedIndex() {
+        return songListView.getSelectionModel().getSelectedIndex();
+    }
+
+    private void setSliderListeners() {
+        volumeListener = observable -> {
+            if (SongsManager.songs.get(actualSongIndex) != null) {
+                SongsManager.songs.get(actualSongIndex).setVolume(volumeSlider.getValue() / 100);
+            }
+        };
+        progressListener = observable -> {
+            if (progressSlider.isValueChanging()) {
+                SongsManager.songs.get(actualSongIndex).setSeek(progressSlider.getValue());
+            }
+        };
+
+        volumeSlider.valueProperty().addListener(volumeListener);
+        progressSlider.valueProperty().addListener(progressListener);
+    }
+
+    private void removeSliderListeners() {
+        volumeSlider.valueProperty().removeListener(volumeListener);
+        progressSlider.valueProperty().removeListener(progressListener);
+    }
+
+    private void setNextSongListener() {
+        SongsManager.songs.get(actualSongIndex).getMediaPlayer()
+                .setOnEndOfMedia(() -> {
+                    prepareNextSong();
+                    setNextSongListener();
+                });
+    }
+
+    private void prepareProgressSlider() {
+        progressSlider.setMax(SongsManager.songs.get(actualSongIndex).getMediaPlayer().getTotalDuration().toSeconds());
+        SongsManager.songs.get(actualSongIndex).getMediaPlayer().currentTimeProperty()
+                .addListener((observableValue, duration, t1) -> {
+                            if (!progressSlider.isValueChanging()) {
+                                progressSlider.setValue(t1.toSeconds());
+                            }
+                            elapsedTimeLabel.setText(formatDuration(t1.toMillis()));
+                        }
+                );
+    }
+
+    private void prepareNextSong() {
+        SongsManager.playNextSong();
+        setSongMetadata(SongsManager.songs.get(actualSongIndex).getSongMetadata());
+        removeSliderListeners();
+        setSliderListeners();
+        prepareProgressSlider();
+    }
 }
