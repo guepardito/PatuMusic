@@ -31,4 +31,8 @@ public class SongsManager {
         actualSongIndex = (actualSongIndex +1) % songs.size();
         songs.get(actualSongIndex).play();
     }
+
+    public static SongMetadata getActualSongMetadata() {
+        return songs.get(actualSongIndex).getSongMetadata();
+    }
 }

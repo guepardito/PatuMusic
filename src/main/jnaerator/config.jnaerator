@@ -1,7 +1,0 @@
--library discord_game_sdk
-$(DIR)/discord_game_sdk.h
-
--runtime JNA
--limitComments
--package io.github.deathbeam.discordgamesdk.jna
-

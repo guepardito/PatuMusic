@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import static es.guepardito.patumusic.Application.DISCORD_MANAGER;
 import static es.guepardito.patumusic.music.SongsManager.actualSongIndex;
 
 public class IndexController {
@@ -116,7 +117,7 @@ public class IndexController {
             }
             System.out.println(SongsManager.songs);
         } catch (NullPointerException npe) {
-            System.out.println("No se puede abrir el archivo");
+            npe.printStackTrace();
         }
     }
 
@@ -182,11 +183,15 @@ public class IndexController {
     }
 
     private void setNextSongListener() {
-        SongsManager.songs.get(actualSongIndex).getMediaPlayer()
-                .setOnEndOfMedia(() -> {
-                    prepareNextSong();
-                    setNextSongListener();
-                });
+        DISCORD_MANAGER.setDiscordActivity(
+                SongsManager.getActualSongMetadata().getTitle(),
+                SongsManager.getActualSongMetadata().getArtist(),
+                "_"
+        );
+
+        SongsManager.songs.get(actualSongIndex).getMediaPlayer().setOnEndOfMedia(() -> {
+            prepareNextSong();
+            setNextSongListener();});
     }
 
     private void prepareProgressSlider() {
