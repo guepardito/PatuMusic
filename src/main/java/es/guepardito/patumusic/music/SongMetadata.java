@@ -16,6 +16,8 @@ import java.text.Format;
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 
+import static es.guepardito.patumusic.utils.SongStringFormatter.formatCoverString;
+
 @Getter
 public class SongMetadata {
     private String title;
@@ -44,7 +46,6 @@ public class SongMetadata {
         } catch (IOException | UnsupportedTagException | InvalidDataException e) {
             e.printStackTrace();
         }
-        saveCoverArtAsPng(getCoverArtAsString());
     }
 
     @Override
@@ -123,21 +124,5 @@ public class SongMetadata {
         } else {
             return formatCoverString(title);
         }
-    }
-
-    /**
-     * Funcion para formatear los nombres de las portadas a la normalizacion que impone discord para subir las imagenes
-     * @param unformattedName string antes de realizar el formateo
-     * @return formated el string formateado
-     */
-    private String formatCoverString(String unformattedName) {
-        String formatted = unformattedName.toLowerCase();
-        formatted = formatted.replace(" ", "_");
-
-        formatted = Normalizer.normalize(formatted, Normalizer.Form.NFD);
-        Pattern pattern = Pattern.compile("\\p{M}");
-        formatted = pattern.matcher(formatted).replaceAll("");
-
-        return formatted;
     }
 }

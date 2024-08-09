@@ -88,13 +88,32 @@ public class IndexController {
     public void handlePlayPauseSong(ActionEvent actionEvent) {
         if (!SongsManager.isPlaying) {
             SongsManager.songs.get(actualSongIndex).play();
+            DISCORD_MANAGER.setDiscordActivity(
+                    SongsManager.getActualSongMetadata().getTitle(),
+                    SongsManager.getActualSongMetadata().getArtist(),
+                    SongsManager.getActualSongMetadata().getCoverArtAsString(),
+                    (long) (SongsManager.getActualSongMetadata().getDuration()
+                            - SongsManager.songs.get(actualSongIndex).getMediaPlayer().getCurrentTime().toMillis())
+            );
         } else {
             SongsManager.songs.get(actualSongIndex).pause();
+
+            DISCORD_MANAGER.setDiscordActivity(
+                    SongsManager.getActualSongMetadata().getTitle(),
+                    SongsManager.getActualSongMetadata().getArtist(),
+                    SongsManager.getActualSongMetadata().getCoverArtAsString()
+            );
         }
     }
 
     public void handlerestartSong(ActionEvent actionEvent) {
         SongsManager.songs.get(actualSongIndex).restart();
+        DISCORD_MANAGER.setDiscordActivity(
+                SongsManager.getActualSongMetadata().getTitle(),
+                SongsManager.getActualSongMetadata().getArtist(),
+                SongsManager.getActualSongMetadata().getCoverArtAsString(),
+                SongsManager.getActualSongMetadata().getDuration()
+        );
     }
 
     public void handleSkipSong(ActionEvent actionEvent) {
@@ -186,8 +205,11 @@ public class IndexController {
         DISCORD_MANAGER.setDiscordActivity(
                 SongsManager.getActualSongMetadata().getTitle(),
                 SongsManager.getActualSongMetadata().getArtist(),
-                "_"
+                SongsManager.getActualSongMetadata().getCoverArtAsString(),
+                SongsManager.getActualSongMetadata().getDuration()
         );
+
+        System.out.println(SongsManager.getActualSongMetadata().getCoverArtAsString());
 
         SongsManager.songs.get(actualSongIndex).getMediaPlayer().setOnEndOfMedia(() -> {
             prepareNextSong();

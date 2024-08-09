@@ -5,6 +5,8 @@ import com.sun.jna.Native;
 import es.guepardito.patumusic.discord.jna.*;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
+
 import static es.guepardito.patumusic.discord.jna.Discord_game_sdkLibrary.*;
 import static es.guepardito.patumusic.discord.utils.DiscordUtils.strToByteArr;
 
@@ -25,6 +27,13 @@ public class DiscordActivityController extends Thread {
         this.running = false;
     }
 
+    public void setDiscordActivity(String songName, String songAuthor) {
+        activity = new DiscordActivity();
+        strToByteArr(activity.details, songName);
+        strToByteArr(activity.state, songAuthor);
+        applyDiscordActivity();
+    }
+
     public void setDiscordActivity(String songName, String songAuthor, String songCoverName) {
         activity = new DiscordActivity();
         strToByteArr(activity.details, songName);
@@ -33,10 +42,17 @@ public class DiscordActivityController extends Thread {
 
         applyDiscordActivity();
     }
-    public void setDiscordActivity(String songName, String songAuthor) {
+
+    public void setDiscordActivity(String songName, String songAuthor, String songCoverName, long songDurationMs) {
         activity = new DiscordActivity();
         strToByteArr(activity.details, songName);
         strToByteArr(activity.state, songAuthor);
+        strToByteArr(activity.assets.large_image, songCoverName);
+
+        long startTime = Instant.now().getEpochSecond();
+        activity.timestamps.start = startTime;
+        activity.timestamps.end = startTime + (songDurationMs / 1000);
+
         applyDiscordActivity();
     }
 
@@ -70,7 +86,7 @@ public class DiscordActivityController extends Thread {
         log.debug("Discord create output is {} and pointer {}", result, core.getPointer());
 
         activityManager = core.get_activity_manager.apply(core);
-        setDiscordActivity("Cancion", "Prueba");
+        setDiscordActivity("Idling", "Selecting Song...");
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             core.destroy.apply(core);
